@@ -36,7 +36,7 @@ function Header() {
       <div className="flex items-center justify-center px-5 py-2 md:py-5">
         <p className="flex items-center w-fit p-5 text-sm font-light text-[#009283] italic shadow-xl rounded-xl bg-white max-w-3xl">
           <UserCircleIcon className="inline-block h-10 w-10 text-[#009283] mr-1" />
-          AI is condensing your daily tasks into a summary.
+          AI is condensing your daily tasks into a summary...
         </p>
       </div>
     </header>
