@@ -34,6 +34,10 @@ function Board() {
         });
     }
 
+    // Handle card drag
+
+    
+
   };
 
   return (
