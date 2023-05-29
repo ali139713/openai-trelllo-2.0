@@ -12,7 +12,7 @@ interface IColumn {
 interface ITodo{
  $id: string;
  $createdAt: string;
- titile: string;
+ title: string;
  status: TypedColumn;
  image? :string;
 }
