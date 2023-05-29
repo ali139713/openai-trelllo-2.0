@@ -5,6 +5,7 @@ import { devtools, persist } from 'zustand/middleware'
 interface BoardState {
   board: IBoard;
   getBoard: () => void;
+  setBoardState: (board:IBoard) => void;
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -14,6 +15,8 @@ export const useBoardStore = create<BoardState>((set) => ({
     getBoard: async () => {
         const board = await getTodosGroupedByColumn();
         set({board});
-    }
+    },
+
+    setBoardState: (board) => set({board})
 }))
 
