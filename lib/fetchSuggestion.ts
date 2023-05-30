@@ -1,3 +1,5 @@
+import formatTodoForGPT from "./formatTodoForGPT";
+
 const fetchSuggestion = async (board: IBoard) => {
   const todos = formatTodoForGPT(board);
 

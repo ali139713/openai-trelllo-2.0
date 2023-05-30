@@ -18,3 +18,5 @@ const formatTodoForGPT = (board: IBoard) => {
 
   return flatArrayCounted;
 };
+
+export default formatTodoForGPT
