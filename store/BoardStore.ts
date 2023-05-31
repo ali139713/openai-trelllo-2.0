@@ -1,5 +1,6 @@
-import { databases, storage } from "@/appwrite";
+import { ID, databases, storage } from "@/appwrite";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
+import uploadImage from "@/lib/uploadImage";
 import { create } from "zustand";
 
 interface BoardState {
@@ -14,6 +15,13 @@ interface BoardState {
   newTaskInput: string;
   setNewTaskInput: (searchString: string) => void;
 
+  newTaskType: TypedColumn;
+  setNewTaskType: (columnId: TypedColumn) => void;
+
+  image: File | null;
+  setImage: (image: File | null) => void;
+
+  addTask: (todo:string, columnId: TypedColumn, image?:File | null) => void;
   deleteTask: (taskIndex: number, todoId: ITodo, id: TypedColumn) => void;
 }
 
@@ -24,6 +32,9 @@ export const useBoardStore = create<BoardState>((set) => ({
 
   searchString: "",
   newTaskInput: "",
+  newTaskType: "Todo",
+  image: null,
+
   setSearchString: (searchString) => set({ searchString }),
 
   getBoard: async () => {
@@ -53,6 +64,8 @@ export const useBoardStore = create<BoardState>((set) => ({
   },
 
   setNewTaskInput: (input: string) => set({ newTaskInput: input }),
+  setNewTaskType: (columnId: TypedColumn) => set({ newTaskType: columnId }),
+  setImage: (image: File | null) => set({ image }),
 
   updateTodoInDB: async (todo, columnId) => {
     await databases.updateDocument(
@@ -65,4 +78,30 @@ export const useBoardStore = create<BoardState>((set) => ({
       }
     );
   },
+
+  addTask: async (todo:string, columnId: TypedColumn, image?:File | null) => {
+    let file: Image | undefined;
+
+    if(image){
+      const fileUploaded = await uploadImage(image);
+      if(fileUploaded){
+        file = {
+          bucketId: fileUploaded.bucketId,
+          fileId: fileUploaded.$id,
+        }
+      }
+    }
+    // add in DB
+
+    await databases.createDocument(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
+      ID.unique(),
+      {
+        title: todo,
+        status: columnId,
+        ...(file && { image: JSON.stringify(file)}),
+      }
+    )
+  }
 }));
