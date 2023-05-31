@@ -11,7 +11,10 @@ interface BoardState {
   searchString: string;
   setSearchString: (searchString: string) => void;
 
-  deleteTask: (taskIndex: number, todoId: ITodo, id:TypedColumn) => void;
+  newTaskInput: string;
+  setNewTaskInput: (searchString: string) => void;
+
+  deleteTask: (taskIndex: number, todoId: ITodo, id: TypedColumn) => void;
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -20,8 +23,9 @@ export const useBoardStore = create<BoardState>((set) => ({
   },
 
   searchString: "",
-  setSearchString: (searchString) => set({searchString}),
-  
+  newTaskInput: "",
+  setSearchString: (searchString) => set({ searchString }),
+
   getBoard: async () => {
     const board = await getTodosGroupedByColumn();
     set({ board });
@@ -29,24 +33,26 @@ export const useBoardStore = create<BoardState>((set) => ({
 
   setBoardState: (board) => set({ board }),
 
-  deleteTask: async (taskIndex:number, todo:ITodo, id: TypedColumn) => {
+  deleteTask: async (taskIndex: number, todo: ITodo, id: TypedColumn) => {
     const newColumns = new Map(useBoardStore.getState().board.columns);
 
-    //delete todoId 
+    //delete todoId
 
     newColumns.get(id)?.todos.splice(taskIndex, 1);
-    set({board: {columns: newColumns}});
+    set({ board: { columns: newColumns } });
 
-    if(todo.image){
-        await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
+    if (todo.image) {
+      await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
     }
 
     await databases.deleteDocument(
-        process.env.NEXT_PUBLIC_DATABASE_ID!,
-        process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
-        todo.$id,
-      );
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
+      todo.$id
+    );
   },
+
+  setNewTaskInput: (input: string) => set({ newTaskInput: input }),
 
   updateTodoInDB: async (todo, columnId) => {
     await databases.updateDocument(
@@ -59,5 +65,4 @@ export const useBoardStore = create<BoardState>((set) => ({
       }
     );
   },
-
 }));
