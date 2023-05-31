@@ -1,4 +1,5 @@
 import { ID, databases, storage } from "@/appwrite";
+import Board from "@/components/Board";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
 import uploadImage from "@/lib/uploadImage";
 import { create } from "zustand";
@@ -93,7 +94,7 @@ export const useBoardStore = create<BoardState>((set) => ({
     }
     // add in DB
 
-    await databases.createDocument(
+    const {$id} = await databases.createDocument(
       process.env.NEXT_PUBLIC_DATABASE_ID!,
       process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
       ID.unique(),
@@ -102,6 +103,37 @@ export const useBoardStore = create<BoardState>((set) => ({
         status: columnId,
         ...(file && { image: JSON.stringify(file)}),
       }
-    )
+    );
+
+    set({ newTaskInput: '' });
+
+    set((state) => {
+      const newColumns = new Map(state.board.columns);
+
+      const newTodo: any = {
+        $createdAt: new Date().toISOString(),
+        title: todo,
+        status: columnId,
+        ...(file && { image: file}),
+      };
+
+      const column = newColumns.get(columnId);
+
+      if(!column) {
+        newColumns.set(columnId, {
+          id: columnId,
+          todos: [newTodo],
+        });
+      }
+      else {
+        newColumns.get(columnId)?.todos.push(newTodo);
+      }
+
+      return {
+        board: {
+          columns: newColumns
+        }
+      }
+    })
   }
 }));
